@@ -50,4 +50,18 @@ public class RoomResource {
         }
         return Response.ok(room).build();
     }
+
+    @PUT
+    @Path("/{roomId}")
+    public Response updateRoom(@PathParam("roomId") String roomId, Room updatedRoom) {
+        Room existing = rooms.get(roomId);
+        if (existing == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Room with ID '" + roomId + "' not found\"}")
+                    .build();
+        }
+        existing.setName(updatedRoom.getName());
+        existing.setCapacity(updatedRoom.getCapacity());
+        return Response.ok(existing).build();
+    }
 }
