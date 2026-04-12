@@ -1,6 +1,7 @@
 package com.smartcampus.resource;
 
 import com.smartcampus.model.Room;
+import com.smartcampus.exception.RoomNotEmptyException;
 import com.smartcampus.storage.DataStore;
 
 import javax.ws.rs.*;
@@ -63,5 +64,23 @@ public class RoomResource {
         existing.setName(updatedRoom.getName());
         existing.setCapacity(updatedRoom.getCapacity());
         return Response.ok(existing).build();
+    }
+
+    @DELETE
+    @Path("/{roomId}")
+    public Response deleteRoom(@PathParam("roomId") String roomId) {
+        Room room = rooms.get(roomId);
+        if (room == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Room with ID '" + roomId + "' not found\"}")
+                    .build();
+        }
+        if (room.getSensorIds() != null && !room.getSensorIds().isEmpty()) {
+            throw new RoomNotEmptyException("Cannot delete room '" + roomId
+                    + "': it still has " + room.getSensorIds().size()
+                    + " active sensor(s) assigned to it.");
+        }
+        rooms.remove(roomId);
+        return Response.noContent().build();
     }
 }
