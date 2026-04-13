@@ -1,0 +1,104 @@
+package com.smartcampus.resource;
+
+import com.smartcampus.exception.LinkedResourceNotFoundException;
+import com.smartcampus.model.Room;
+import com.smartcampus.model.Sensor;
+import com.smartcampus.storage.DataStore;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Path("/sensors")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class SensorResource {
+
+    private final Map<String, Sensor> sensors = DataStore.getInstance().getSensors();
+    private final Map<String, Room> rooms = DataStore.getInstance().getRooms();
+
+    @GET
+    public Response getAllSensors() {
+        List<Sensor> sensorList = new ArrayList<>(sensors.values());
+        return Response.ok(sensorList).build();
+    }
+
+    @GET
+    @Path("/{sensorId}")
+    public Response getSensorById(@PathParam("sensorId") String sensorId) {
+        Sensor sensor = sensors.get(sensorId);
+        if (sensor == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Sensor with ID '" + sensorId + "' not found\"}")
+                    .build();
+        }
+        return Response.ok(sensor).build();
+    }
+
+    @POST
+    public Response createSensor(Sensor sensor) {
+        if (sensor.getId() == null || sensor.getId().trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Sensor ID is required\"}")
+                    .build();
+        }
+        if (sensors.containsKey(sensor.getId())) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("{\"error\": \"Sensor with ID '" + sensor.getId() + "' already exists\"}")
+                    .build();
+        }
+
+        // Validate that the referenced room exists
+        if (sensor.getRoomId() == null || !rooms.containsKey(sensor.getRoomId())) {
+            throw new LinkedResourceNotFoundException(
+                    "Room with ID '" + sensor.getRoomId() + "' does not exist. "
+                    + "Cannot register sensor without a valid room.");
+        }
+
+        sensors.put(sensor.getId(), sensor);
+
+        // Link sensor to the room
+        Room room = rooms.get(sensor.getRoomId());
+        room.getSensorIds().add(sensor.getId());
+
+        return Response.status(Response.Status.CREATED).entity(sensor).build();
+    }
+
+    @PUT
+    @Path("/{sensorId}")
+    public Response updateSensor(@PathParam("sensorId") String sensorId, Sensor updatedSensor) {
+        Sensor existing = sensors.get(sensorId);
+        if (existing == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Sensor with ID '" + sensorId + "' not found\"}")
+                    .build();
+        }
+        existing.setType(updatedSensor.getType());
+        existing.setStatus(updatedSensor.getStatus());
+        existing.setCurrentValue(updatedSensor.getCurrentValue());
+        return Response.ok(existing).build();
+    }
+
+    @DELETE
+    @Path("/{sensorId}")
+    public Response deleteSensor(@PathParam("sensorId") String sensorId) {
+        Sensor sensor = sensors.get(sensorId);
+        if (sensor == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Sensor with ID '" + sensorId + "' not found\"}")
+                    .build();
+        }
+
+        // Remove sensor from room's sensor list
+        Room room = rooms.get(sensor.getRoomId());
+        if (room != null) {
+            room.getSensorIds().remove(sensorId);
+        }
+
+        sensors.remove(sensorId);
+        return Response.noContent().build();
+    }
+}
