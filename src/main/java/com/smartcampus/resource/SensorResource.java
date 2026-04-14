@@ -3,6 +3,7 @@ package com.smartcampus.resource;
 import com.smartcampus.exception.LinkedResourceNotFoundException;
 import com.smartcampus.model.Room;
 import com.smartcampus.model.Sensor;
+import com.smartcampus.model.SensorReading;
 import com.smartcampus.storage.DataStore;
 
 import javax.ws.rs.*;
@@ -108,5 +109,14 @@ public class SensorResource {
 
         sensors.remove(sensorId);
         return Response.noContent().build();
+    }
+
+    @Path("/{sensorId}/readings")
+    public SensorReadingResource getSensorReadings(@PathParam("sensorId") String sensorId) {
+        Sensor sensor = sensors.get(sensorId);
+        if (sensor == null) {
+            throw new javax.ws.rs.NotFoundException("Sensor with ID '" + sensorId + "' not found");
+        }
+        return new SensorReadingResource(sensorId);
     }
 }
