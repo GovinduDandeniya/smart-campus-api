@@ -11,6 +11,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Path("/sensors")
 @Produces(MediaType.APPLICATION_JSON)
@@ -21,8 +22,15 @@ public class SensorResource {
     private final Map<String, Room> rooms = DataStore.getInstance().getRooms();
 
     @GET
-    public Response getAllSensors() {
-        List<Sensor> sensorList = new ArrayList<>(sensors.values());
+    public Response getAllSensors(@QueryParam("type") String type) {
+        List<Sensor> sensorList;
+        if (type != null && !type.trim().isEmpty()) {
+            sensorList = sensors.values().stream()
+                    .filter(s -> s.getType().equalsIgnoreCase(type.trim()))
+                    .collect(Collectors.toList());
+        } else {
+            sensorList = new ArrayList<>(sensors.values());
+        }
         return Response.ok(sensorList).build();
     }
 
