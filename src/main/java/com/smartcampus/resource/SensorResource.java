@@ -10,6 +10,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,9 +41,11 @@ public class SensorResource {
     public Response getSensorById(@PathParam("sensorId") String sensorId) {
         Sensor sensor = sensors.get(sensorId);
         if (sensor == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("{\"error\": \"Sensor with ID '" + sensorId + "' not found\"}")
-                    .build();
+            Map<String, Object> err = new LinkedHashMap<>();
+            err.put("status", 404);
+            err.put("error", "Not Found");
+            err.put("message", "Sensor with ID '" + sensorId + "' not found");
+            return Response.status(Response.Status.NOT_FOUND).entity(err).build();
         }
         return Response.ok(sensor).build();
     }
@@ -50,14 +53,18 @@ public class SensorResource {
     @POST
     public Response createSensor(Sensor sensor) {
         if (sensor.getId() == null || sensor.getId().trim().isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\": \"Sensor ID is required\"}")
-                    .build();
+            Map<String, Object> err = new LinkedHashMap<>();
+            err.put("status", 400);
+            err.put("error", "Bad Request");
+            err.put("message", "Sensor ID is required");
+            return Response.status(Response.Status.BAD_REQUEST).entity(err).build();
         }
         if (sensors.containsKey(sensor.getId())) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("{\"error\": \"Sensor with ID '" + sensor.getId() + "' already exists\"}")
-                    .build();
+            Map<String, Object> err = new LinkedHashMap<>();
+            err.put("status", 409);
+            err.put("error", "Conflict");
+            err.put("message", "Sensor with ID '" + sensor.getId() + "' already exists");
+            return Response.status(Response.Status.CONFLICT).entity(err).build();
         }
 
         // Validate that the referenced room exists
@@ -81,9 +88,11 @@ public class SensorResource {
     public Response updateSensor(@PathParam("sensorId") String sensorId, Sensor updatedSensor) {
         Sensor existing = sensors.get(sensorId);
         if (existing == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("{\"error\": \"Sensor with ID '" + sensorId + "' not found\"}")
-                    .build();
+            Map<String, Object> err = new LinkedHashMap<>();
+            err.put("status", 404);
+            err.put("error", "Not Found");
+            err.put("message", "Sensor with ID '" + sensorId + "' not found");
+            return Response.status(Response.Status.NOT_FOUND).entity(err).build();
         }
         existing.setType(updatedSensor.getType());
         existing.setStatus(updatedSensor.getStatus());
@@ -96,9 +105,11 @@ public class SensorResource {
     public Response deleteSensor(@PathParam("sensorId") String sensorId) {
         Sensor sensor = sensors.get(sensorId);
         if (sensor == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("{\"error\": \"Sensor with ID '" + sensorId + "' not found\"}")
-                    .build();
+            Map<String, Object> err = new LinkedHashMap<>();
+            err.put("status", 404);
+            err.put("error", "Not Found");
+            err.put("message", "Sensor with ID '" + sensorId + "' not found");
+            return Response.status(Response.Status.NOT_FOUND).entity(err).build();
         }
 
         // Remove sensor from room's sensor list
