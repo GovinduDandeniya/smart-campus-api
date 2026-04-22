@@ -7,8 +7,11 @@ import com.smartcampus.model.SensorReading;
 import com.smartcampus.storage.DataStore;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,6 +25,9 @@ public class SensorResource {
 
     private final Map<String, Sensor> sensors = DataStore.getInstance().getSensors();
     private final Map<String, Room> rooms = DataStore.getInstance().getRooms();
+
+    @Context
+    private UriInfo uriInfo;
 
     @GET
     public Response getAllSensors(@QueryParam("type") String type) {
@@ -80,7 +86,8 @@ public class SensorResource {
         Room room = rooms.get(sensor.getRoomId());
         room.getSensorIds().add(sensor.getId());
 
-        return Response.status(Response.Status.CREATED).entity(sensor).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(sensor.getId()).build();
+        return Response.created(location).entity(sensor).build();
     }
 
     @PUT

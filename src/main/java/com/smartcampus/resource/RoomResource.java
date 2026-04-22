@@ -5,8 +5,11 @@ import com.smartcampus.exception.RoomNotEmptyException;
 import com.smartcampus.storage.DataStore;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +21,9 @@ import java.util.Map;
 public class RoomResource {
 
     private final Map<String, Room> rooms = DataStore.getInstance().getRooms();
+
+    @Context
+    private UriInfo uriInfo;
 
     @GET
     public Response getAllRooms() {
@@ -42,7 +48,8 @@ public class RoomResource {
             return Response.status(Response.Status.CONFLICT).entity(err).build();
         }
         rooms.put(room.getId(), room);
-        return Response.status(Response.Status.CREATED).entity(room).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(room.getId()).build();
+        return Response.created(location).entity(room).build();
     }
 
     @GET
