@@ -93,6 +93,13 @@ public class SensorResource {
     @PUT
     @Path("/{sensorId}")
     public Response updateSensor(@PathParam("sensorId") String sensorId, Sensor updatedSensor) {
+        if (updatedSensor.getId() != null && !updatedSensor.getId().equalsIgnoreCase(sensorId)) {
+            Map<String, Object> err = new LinkedHashMap<>();
+            err.put("status", 400);
+            err.put("error", "Bad Request");
+            err.put("message", "Sensor ID in body '" + updatedSensor.getId() + "' does not match path ID '" + sensorId + "'");
+            return Response.status(Response.Status.BAD_REQUEST).entity(err).build();
+        }
         Sensor existing = sensors.get(sensorId);
         if (existing == null) {
             Map<String, Object> err = new LinkedHashMap<>();
