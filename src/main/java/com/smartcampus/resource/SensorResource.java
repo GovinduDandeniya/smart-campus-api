@@ -103,7 +103,10 @@ public class SensorResource {
         }
         existing.setType(updatedSensor.getType());
         existing.setStatus(updatedSensor.getStatus());
-        existing.setCurrentValue(updatedSensor.getCurrentValue());
+        // Only update currentValue if explicitly provided (non-zero) in the request
+        if (updatedSensor.getCurrentValue() != 0) {
+            existing.setCurrentValue(updatedSensor.getCurrentValue());
+        }
         return Response.ok(existing).build();
     }
 

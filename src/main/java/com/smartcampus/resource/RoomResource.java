@@ -33,13 +33,6 @@ public class RoomResource {
 
     @POST
     public Response createRoom(Room room) {
-        if (room.getId() == null || room.getId().trim().isEmpty()) {
-            Map<String, Object> err = new LinkedHashMap<>();
-            err.put("status", 400);
-            err.put("error", "Bad Request");
-            err.put("message", "Room ID is required");
-            return Response.status(Response.Status.BAD_REQUEST).entity(err).build();
-        }
         if (rooms.containsKey(room.getId())) {
             Map<String, Object> err = new LinkedHashMap<>();
             err.put("status", 409);
