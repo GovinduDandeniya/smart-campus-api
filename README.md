@@ -50,17 +50,12 @@ src/main/java/com/smartcampus/
 mvn clean package
 ```
 
-### Run
+### Run (Embedded Tomcat)
 ```bash
-java -jar target/smart-campus-api-1.0-SNAPSHOT.jar
+mvn tomcat7:run
 ```
 
 The server starts at `http://localhost:8080/api/v1/`.
-
-Alternatively, run with Maven:
-```bash
-mvn exec:java
-```
 
 ## API Endpoints
 
