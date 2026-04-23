@@ -5,17 +5,17 @@ A RESTful API built with **JAX-RS (Jersey 2.39.1)** for managing university camp
 ## Technology Stack
 
 - **Java 11** with **JAX-RS** (Jersey 2.39.1 reference implementation)
-- **Grizzly 2.4.4** embedded HTTP server
+- **Apache Tomcat 9** embedded via Cargo Maven plugin
 - **Jackson** for JSON serialization/deserialization
-- **Maven** for build management
+- **Maven** for build management (WAR packaging)
 - **In-memory storage** using `ConcurrentHashMap` (no database)
 
 ## Project Structure
 
 ```
 src/main/java/com/smartcampus/
-├── Main.java                          # Grizzly server bootstrap
-├── SmartCampusApplication.java        # JAX-RS Application class
+├── Main.java                          # Base URI constant (server runs via mvn cargo:run)
+├── SmartCampusApplication.java        # JAX-RS Application class (extends ResourceConfig)
 ├── model/
 │   ├── Room.java                      # Room entity
 │   ├── Sensor.java                    # Sensor entity
@@ -37,6 +37,8 @@ src/main/java/com/smartcampus/
 │   └── GenericExceptionMapper.java            # 500 catch-all (no stack trace leak)
 └── filter/
     └── LoggingFilter.java             # Request/response logging filter
+src/main/webapp/WEB-INF/
+└── web.xml                            # Jersey servlet mapping (/api/v1/*)
 ```
 
 ## Build & Run
