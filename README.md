@@ -50,9 +50,9 @@ src/main/java/com/smartcampus/
 mvn clean package
 ```
 
-### Run (Embedded Tomcat)
+### Run (Embedded Tomcat 9)
 ```bash
-mvn tomcat7:run
+mvn cargo:run
 ```
 
 The server starts at `http://localhost:8080/api/v1/`.
