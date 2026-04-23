@@ -253,7 +253,7 @@ The `GenericExceptionMapper` catches all unhandled exceptions and returns a gene
 
 **Risks of exposing stack traces:**
 1. **Information disclosure** — Stack traces reveal internal class names, method names, line numbers, library versions, and file paths. Attackers use this to map the application's internal structure.
-2. **Dependency exposure** — Traces show exact library versions (e.g. `jersey-2.39.1`, `grizzly-2.4.4`), allowing attackers to search for known CVEs in those specific versions.
+2. **Dependency exposure** — Traces show exact library versions (e.g. `jersey-2.39.1`, `tomcat-9.0.117`), allowing attackers to search for known CVEs in those specific versions.
 3. **Attack surface mapping** — Class names like `DataStore`, `RoomResource`, and package structures help attackers understand the application's architecture and find potential injection points.
 4. **SQL/NoSQL injection clues** — If a database were used, stack traces might reveal query structures or ORM mappings.
 5. **Path disclosure** — Server file paths in traces can reveal the operating system, deployment structure, and user context.
